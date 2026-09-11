@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DocuMind</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #111214;
+            color: #eeeeee;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+            margin: auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .header p {
+            color: #858585;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #18191c;
+            border: 1px solid #292b30;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #bdbdbd;
+            margin-bottom: 11px;
+        }
+
+        .upload-box {
+            border: 1px dashed #3a3c42;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            background: #151619;
+        }
+
+        .upload-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .upload-box p {
+            color: #777a80;
+            font-size: 13px;
+            margin-bottom: 17px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #24262b;
+            color: #ddd;
+            border: 1px solid #36383e;
+            border-radius: 7px;
+            padding: 8px 12px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .upload-button {
+            width: 100%;
+            padding: 11px;
+            background: #e8e8e8;
+            color: #151515;
+        }
+
+        .upload-button:hover {
+            background: #ffffff;
+        }
+
+        .status {
+            min-height: 18px;
+            margin-top: 10px;
+            color: #858585;
+            font-size: 12px;
+        }
+
+        .question-area {
+            display: flex;
+            gap: 8px;
+        }
+
+        .question-input {
+            flex: 1;
+            background: #111214;
+            border: 1px solid #303238;
+            border-radius: 8px;
+            color: #eeeeee;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .question-input:focus {
+            border-color: #55585f;
+        }
+
+        .question-input::placeholder {
+            color: #66686d;
+        }
+
+        .ask-button {
+            width: 80px;
+            background: #e8e8e8;
+            color: #151515;
+        }
+
+        .ask-button:hover {
+            background: #ffffff;
+        }
+
+        .answer-box {
+            min-height: 120px;
+            background: #111214;
+            border: 1px solid #292b30;
+            border-radius: 9px;
+            padding: 16px;
+            color: #d5d5d5;
+            font-size: 14px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .placeholder {
+            color: #5f6166;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            color: #55575c;
+            font-size: 11px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 25px 15px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .question-area {
+                flex-direction: column;
+            }
+
+            .ask-button {
+                width: 100%;
+                padding: 11px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+
+            <h1>DocuMind</h1>
+
+            <p>
+                Ask questions about your documents.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="section">
+
+                <div class="section-title">
+                    Upload PDF
+                </div>
+
+                <div class="upload-box">
+
+                    <div class="upload-icon">
+                        📄
+                    </div>
+
+                    <p>
+                        Select a PDF to get started
+                    </p>
+
+                    <input
+                        type="file"
+                        id="pdfFile"
+                        accept=".pdf"
+                    >
+
+                    <button
+                        class="upload-button"
+                        onclick="uploadPDF()"
+                    >
+                        Upload PDF
+                    </button>
+
+                    <div
+                        class="status"
+                        id="uploadStatus"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <div class="section-title">
+                    Ask a question
+                </div>
+
+                <div class="question-area">
+
+                    <input
+                        class="question-input"
+                        type="text"
+                        id="question"
+                        placeholder="What would you like to know?"
+                    >
+
+                    <button
+                        class="ask-button"
+                        onclick="askQuestion()"
+                    >
+                        Ask
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <div class="section-title">
+                    Answer
+                </div>
+
+                <div
+                    class="answer-box"
+                    id="result"
+                >
+                    <span class="placeholder">
+                        Your answer will appear here.
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer">
+            DocuMind · RAG Document Q&A
+        </div>
+
+    </div>
+
+
+    <script>
+
+        async function uploadPDF() {
+
+            const fileInput =
+                document.getElementById("pdfFile");
+
+            const status =
+                document.getElementById("uploadStatus");
+
+            if (!fileInput.files.length) {
+
+                status.innerText =
+                    "Please select a PDF first.";
+
+                return;
+            }
+
+            status.innerText =
+                "Processing...";
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "file",
+                fileInput.files[0]
+            );
+
+            try {
+
+                const response =
+                    await fetch(
+                        "http://127.0.0.1:8000/upload",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error("Upload failed");
+                }
+
+                const data =
+                    await response.json();
+
+                status.innerText =
+                    "PDF ready · " +
+                    data.chunks +
+                    " chunks created.";
+
+            } catch (error) {
+
+                status.innerText =
+                    "Upload failed. Please try again.";
+
+            }
+        }
+
+
+        async function askQuestion() {
+
+            const question =
+                document.getElementById("question").value;
+
+            const result =
+                document.getElementById("result");
+
+            if (!question.trim()) {
+
+                result.innerText =
+                    "Please enter a question.";
+
+                return;
+            }
+
+            result.innerText =
+                "Thinking...";
+
+            try {
+
+                const response =
+                    await fetch(
+                        `http://127.0.0.1:8000/ask?question=${encodeURIComponent(question)}`,
+                        {
+                            method: "POST"
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error("Request failed");
+                }
+
+                const data =
+                    await response.json();
+
+                result.innerText =
+                    data.answer;
+
+            } catch (error) {
+
+                result.innerText =
+                    "Something went wrong. Please try again.";
+
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
