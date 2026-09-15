@@ -1,7 +1,7 @@
-.venv/
 __pycache__/
+.venv/
+.vscode
+data
 .env
+test.py
 uploaded.pdf
-chunks.pkl
-embeddings.npy
-faiss_index.bin

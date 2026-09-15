@@ -24,14 +24,15 @@ embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("GROQ_API_KEY"),base_url="https://api.groq.com/openai/v1")
 
 # Retrieval (and augmentation)
 
 def retrieve(question):
 
     question_embedding = embedding_model.encode(
-        [question]
+        [question],
+        normalize_embeddings=True
     )
 
     top_k = 5
@@ -42,8 +43,9 @@ def retrieve(question):
     )
 
     context = "\n\n".join(
-        chunks[chunk_index]
-        for chunk_index in indices[0]
+    f"[Page {chunks[chunk_index]['page']}]\n"
+    f"{chunks[chunk_index]['text']}"
+    for chunk_index in indices[0]
     )
 
     return context
@@ -54,19 +56,25 @@ def load_and_chunk_pdf(pdf_path):
 
     chunks = []
 
-    for page in pdf:
+    chunk_size = 200
+    overlap = 40
+
+    for page_number, page in enumerate(pdf, start=1):
 
         text = page.get_text()
         words = text.split()
 
-        chunk_size = 200
-        overlap = 40
-
         for i in range(0, len(words), chunk_size - overlap):
 
-            chunk = " ".join(
-                words[i:i + chunk_size]
-            )
+            chunk_words = words[i:i + chunk_size]
+
+            if not chunk_words:
+                continue
+
+            chunk = {
+                "text": " ".join(chunk_words),
+                "page": page_number
+            }
 
             chunks.append(chunk)
 
@@ -84,11 +92,11 @@ def upload_pdf(file: UploadFile = File(...)):
 
     chunks = load_and_chunk_pdf("uploaded.pdf")
 
-    embeddings = embedding_model.encode(chunks)
+    embeddings = embedding_model.encode([chunk["text"] for chunk in chunks],normalize_embeddings=True)
 
     dimension = embeddings.shape[1]
 
-    faiss_index = faiss.IndexFlatL2(dimension)
+    faiss_index = faiss.IndexFlatIP(dimension)
 
     faiss_index.add(embeddings)
 
@@ -102,22 +110,25 @@ def upload_pdf(file: UploadFile = File(...)):
 def generate_answer(question, context):
 
     prompt = f"""
-Answer the question using only the provided context.
+    Answer the question using only the provided context.
 
-For each part of the question:
-- If the information is present in the context, provide it.
-- If the information is not present in the context, say that it is not provided.
-- Do not omit information that is available just because another part is missing.
+    For each part of the question:
+    - If the information is present in the context, provide it.
+    - If the information is not present in the context, say that it is not provided.
+    - Do not omit information that is available just because another part is missing.
 
-Context:
-{context}
+    At the end, list the page numbers used in the context under "Sources".
 
-Question:
-{question}
-"""
+
+    Context:
+    {context}
+
+    Question:
+    {question}
+    """
 
     response = client.responses.create(
-        model="gpt-5.6-luna",
+        model="openai/gpt-oss-120b",
         input=prompt
     )
 

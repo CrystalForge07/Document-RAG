@@ -7,7 +7,7 @@ import os
 import faiss
 import pickle
 
-# PDF
+# Converting pdf into plain text
 
 def load_and_chunk_pdf(pdf_path):
     pdf = pymupdf.open(pdf_path)
