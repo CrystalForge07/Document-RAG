@@ -30,17 +30,11 @@ client = OpenAI(api_key=os.getenv("GROQ_API_KEY"),base_url="https://api.groq.com
 
 def retrieve(question):
 
-    question_embedding = embedding_model.encode(
-        [question],
-        normalize_embeddings=True
-    )
+    question_embedding = embedding_model.encode([question],normalize_embeddings=True)
 
     top_k = 5
 
-    distances, indices = faiss_index.search(
-        question_embedding,
-        top_k
-    )
+    distances, indices = faiss_index.search(question_embedding,top_k)
 
     context = "\n\n".join(
     f"[Page {chunks[chunk_index]['page']}]\n"
@@ -119,7 +113,6 @@ def generate_answer(question, context):
 
     At the end, list the page numbers used in the context under "Sources".
 
-
     Context:
     {context}
 
@@ -127,29 +120,18 @@ def generate_answer(question, context):
     {question}
     """
 
-    response = client.responses.create(
-        model="openai/gpt-oss-120b",
-        input=prompt
-    )
+    response = client.responses.create(model="openai/gpt-oss-120b",input=prompt)
 
     return response.output_text
-
 
 @app.post("/ask")
 def ask_question(question: str):
 
     if faiss_index is None:
-        return {
-            "answer": "Please upload a PDF first."
-        }
+        return {"answer": "Please upload a PDF first." }
 
     context = retrieve(question)
 
-    answer = generate_answer(
-        question,
-        context
-    )
+    answer = generate_answer(question,context)
 
-    return {
-        "answer": answer
-    }
+    return {"answer": answer}
