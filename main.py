@@ -1,5 +1,5 @@
 
-import pickle, numpy as np, faiss, os
+import faiss, os
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 from dotenv import load_dotenv
